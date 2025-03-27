@@ -12,6 +12,7 @@ const SidePanel = () => {
                 minHeight: '100vh',
                 color: 'white',
                 minWidth: '275px',
+                height: '100%',
             }}
         >
             <UserPanel />

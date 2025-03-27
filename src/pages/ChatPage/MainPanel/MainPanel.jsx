@@ -1,9 +1,65 @@
+import {
+    child,
+    DataSnapshot,
+    off,
+    onChildAdded,
+    ref as dbRef,
+} from 'firebase/database';
 import MessageForm from './MessageForm';
 import MessageHeader from './MessageHeader';
+import { useState } from 'react';
+import { db } from '../../../../firebase';
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import Message from './Message';
 
 const MainPanel = () => {
+    const messagesRef = dbRef(db, 'messages');
+    const [messages, setMessages] = useState([]);
+    const [messagesLoading, setMessagesLoading] = useState(true);
+
+    const { currentChatRoom } = useSelector((state) => state.chatRoom);
+    const { currentUser } = useSelector((state) => state.user);
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (currentChatRoom.id) {
+            addMessagesListner(currentChatRoom.id);
+        }
+
+        return () => {
+            off(messagesRef);
+        };
+    }, [currentChatRoom.id]);
+
+    const addMessagesListner = (chatRoomId) => {
+        let messagesArray = [];
+
+        onChildAdded(child(messagesRef, chatRoomId), (DataSnapshot) => {
+            messagesArray.push(DataSnapshot.val());
+            const newMessagesArray = [...messagesArray];
+
+            setMessages(newMessagesArray);
+            setMessagesLoading(false);
+        });
+    };
+
+    const renderMessages = (messages) => {
+        return (
+            messages.length > 0 &&
+            messages.map((message) => (
+                <Message
+                    key={message.timestamp}
+                    message={message}
+                    user={currentUser}
+                />
+            ))
+        );
+    };
+
     return (
-        <div>
+        <div style={{ padding: '2rem 2rem 0 2rem' }}>
             <MessageHeader />
             <div
                 style={{
@@ -15,7 +71,9 @@ const MainPanel = () => {
                     marginBottom: '1rem',
                     overflowY: 'auto',
                 }}
-            ></div>
+            >
+                {renderMessages(messages)}
+            </div>
             <MessageForm />
         </div>
     );
