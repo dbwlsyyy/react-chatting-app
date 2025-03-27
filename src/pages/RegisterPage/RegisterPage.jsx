@@ -9,11 +9,14 @@ import {
 import app, { db } from '../../../firebase';
 import md5 from 'md5';
 import { ref, set } from 'firebase/database';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../../store/userSlice';
 
 const RegisterPage = () => {
     const auth = getAuth(app);
     const [loading, setLoading] = useState(false);
     const [errorFromSubmit, seterrorFromSubmit] = useState('');
+    const dispatch = useDispatch();
 
     const {
         register,
@@ -37,6 +40,14 @@ const RegisterPage = () => {
                     createdUser.user.email
                 )}?d=identicon`,
             });
+
+            const userData = {
+                uid: createdUser.user.uid,
+                displayName: createdUser.user.displayName,
+                photoURL: createdUser.user.photoURL,
+            };
+
+            dispatch(setUser(userData));
 
             set(ref(db, `users/${createdUser.user.uid}`), {
                 name: createdUser.user.displayName,

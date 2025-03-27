@@ -13,7 +13,10 @@ import { FaPlus, FaRegSmileWink } from 'react-icons/fa';
 import { db } from '../../../../firebase';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import { setCurrentChatRoom } from '../../../store/chatRoomSlice';
+import {
+    setCurrentChatRoom,
+    setPrivateChatRoom,
+} from '../../../store/chatRoomSlice';
 
 const ChatRooms = () => {
     const [show, setShow] = useState(false);
@@ -80,10 +83,12 @@ const ChatRooms = () => {
         }
         setFirstLoad(false);
     };
+
     const isFormValid = (name, description) => name && description;
 
     const changeChatRoom = (room) => {
         dispatch(setCurrentChatRoom(room));
+        dispatch(setPrivateChatRoom(false));
         setActiveChatRoomId(room.id);
     };
 
